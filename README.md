@@ -1,21 +1,36 @@
 원본 주소: https://github.com/facebook/fb.resnet.torch
 
+실행 방법
+============================
+th main.lua 실행, 자세한 사항은 TRAINING.md, opts.lua 참고
+
 실행 시 opts.lua 에서 각종 옵션 조절 가능, 
 현재 서버컴에서 작업 시 nGPU 1 에서만 제대로 동작, 
 현재 bypass는 실험을 위하여 bypassRate을 0으로 설정해 놓았고(SpatialConvolution2.lua 내부
 hyper parameter 설정 부분 참고) models/resnet.lua line176 쪽에서 모든 layer가 아닌 앞쪽 3개의 conv에서만 
-bypass 발생하도록 하였음.
+bypass 발생하도록 수정 하였음.
+
+파일 내 모든 수정 부분 위, 아래로 
+-- giyobe
+-- end giyobe
+로 감싸서 수정 발생 부분 파악 용이하도록 하였음.
 
 주요 작업 폴더
+============================
+
  - SpatialConvolution2.lua 파일 내 init 위에서 함수 추가 및 init에 내용 추가,
    updateOutput, updateGradInput 함수 수정
 
  - train.lua 파일 내 train 함수 수정
 
  - models/resnet.lua 파일 내 사용하지 않는 부분 주석처리 및 model 자체에서
-   모델에 포함된 SpatialConvolution2.lua 모듈의 정보를 관리하기 위한 수정
+   SpatialConvolution2.lua 모듈의 정보를 관리하기 위한 수정
+
+ - nn/Sequential.lua, nn/Concat.lua, my/ 수정 존재하나 현재 사용되지 않음
 
 학습 순서에 따른 코드 실행 내용(간략히)
+============================
+
 1) main.lua에서 model, trainer 등 각종 테이블 생성
 
 2) main.lua 내 for문에서 opts.lua 또는 th main.lua 실행 시 넘긴 epoch 수만큼 학습, 테스트 진행
@@ -25,6 +40,10 @@ bypass 발생하도록 하였음.
    현재 코드에서는 backward 시 별다른 추가적인 동작은 하지 않으며, backward 전에 bypass kernel weight를 모두 0으로
    만들기 위한 makeBKzero() 함수의 호출과, backward 후에 weight update가 optim.sgd() 함수의 호출을 통해 일어나기 전에 
    gradWeight를 앞 conv layer에 더해주는 동작을 통해 backward 시 뒷 conv layer의 gradient를 앞으로 전달하고자 하였음.
+
+4) trainer:test 함수를 통해 테스트 진행
+
+5) 새로운 epoch에 대한 학습 진행
 
 ResNet training in Torch
 ============================
