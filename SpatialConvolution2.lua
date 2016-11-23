@@ -1,14 +1,3 @@
--- 궁극적으로 이 파일에서 하고자 하는 것
--- 1) self.bypassRate 초기화
--- 2) function determineBypass() 함수가 각 mini-batch마다 실행되어
---    각 kernel의 bypass or not을 내부적으로 결정, 이는 Sequential에
---    updateOutput과 같이 작동하면 될듯 아니면 models/resnet.lua에
---    ConvInit()처럼 이 모듈만 찾아서 해당 함수를 실행 시킬 수 있도록
--- 3) function makeBypass() 함수를 통해 위의 함수에서 bypass 하도록
---    결정한 kernel에 대하여 function saveKernel()을 호출하여 해당 kernel
---    의 현재 weight를 저장 및 다음번 호출 시 function loadKernel()을 호출
---    하여 이전 mini-batch에서 저장 되었던 weight를 load
-
 local nn = require 'nn'
 local SpatialConvolution2, parent =
     torch.class('SpatialConvolution2', 'nn.SpatialConvolution')

@@ -7,7 +7,8 @@ th main.lua 실행, 자세한 사항은 TRAINING.md, opts.lua 참고
 실행 시 opts.lua 에서 각종 옵션 조절 가능, 
 현재 서버컴에서 작업 시 nGPU 1 에서만 제대로 동작, 
 현재 bypass는 실험을 위하여 bypassRate을 0으로 설정해 놓았고(SpatialConvolution2.lua 내부
-hyper parameter 설정 부분 참고) models/resnet.lua line176 쪽에서 모든 layer가 아닌 앞쪽 3개의 conv에서만 
+hyper parameter 설정 부분 참고) models/resnet.lua [line:184](https://github.com/heuyklee/Stochastic-Width/blob/master/models/resnet.lua#L184) 
+쪽에서 모든 layer가 아닌 앞쪽 3개의 conv에서만 
 bypass 발생하도록 수정 하였음.
 
 파일 내 모든 수정 부분 위, 아래로 
@@ -36,10 +37,10 @@ bypass 발생하도록 수정 하였음.
 2) main.lua 내 for문에서 opts.lua 또는 th main.lua 실행 시 넘긴 epoch 수만큼 학습, 테스트 진행
 
 3) trainer:train 함수를 통해 학습과정 진행
-   현재는 forward 시 이전 conv의 output을 복사하는 코드를 SpatialConvolution2.lua 내부 updateOutput 함수에 구현
+   현재는 forward 시 이전 conv의 output을 복사하는 코드를 SpatialConvolution2.lua 내부 [updateOutput 함수에](https://github.com/heuyklee/Stochastic-Width/blob/master/SpatialConvolution2.lua#L535) 구현
    현재 코드에서는 backward 시 별다른 추가적인 동작은 하지 않으며, backward 전에 bypass kernel weight를 모두 0으로
-   만들기 위한 makeBKzero() 함수의 호출과, backward 후에 weight update가 optim.sgd() 함수의 호출을 통해 일어나기 전에 
-   gradWeight를 앞 conv layer에 더해주는 동작을 통해 backward 시 뒷 conv layer의 gradient를 앞으로 전달하고자 하였음.
+   만들기 위한 [makeBKzero() 함수](https://github.com/heuyklee/Stochastic-Width/blob/master/train.lua#L131)의 호출과, backward 후에 weight update가 optim.sgd() 함수의 호출을 통해 일어나기 전에 
+   [gradWeight를 앞 conv layer에 더해주는](https://github.com/heuyklee/Stochastic-Width/blob/master/train.lua#L157) 동작을 통해 backward 시 뒷 conv layer의 gradient를 앞으로 전달하고자 하였음.
 
 4) trainer:test 함수를 통해 테스트 진행
 
