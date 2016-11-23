@@ -153,8 +153,8 @@ function Trainer:train(epoch, dataloader)
       for i = #self.model.convTbl,2,-1 do
          if self.model.convTbl[i].bypassRate ~= 0 then
 	    for _, idx in ipairs(self.model.convTbl[i].seltbl) do
-               self.model.convTbl[i-1].gradWeight[idx]:add(self.model.convTbl[i].gradWeight[idx]):mul(0.5)
-               -- self.model.convTbl[i-1].gradWeight[idx]:copy(self.model.convTbl[i].gradWeight[idx])
+               -- self.model.convTbl[i-1].gradWeight[idx]:add(self.model.convTbl[i].gradWeight[idx]):mul(0.5)
+               self.model.convTbl[i-1].gradWeight[idx]:copy(self.model.convTbl[i].gradWeight[idx])
             end
          end 
       end
