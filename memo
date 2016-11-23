@@ -1,0 +1,25 @@
+모델의 self.params, self.gradParams = self:getParameters()를 통해 얻은
+self.gradParams와 각 유닛의 gradInput 사이의 관계?
+>> self.gradParams와 conv의 gradWeight는 같고, 서로를 reference 한다.
+
+conv의 gradInput과 gradWeight와의 관계는 무슨 차이가?
+accgradParameters() 실행 이후 gradInput이 생성된다.
+
+
+zeroGradParameters() 는 gradWeight만을 0으로 초기화
+self.model:backward() 는 gradInput과 gradWeight 모두 변화
+optim.sgd 이후 gradWeight만 변화 >> optim.sgd 과정에서 거의 1.9배로 되는 것
+
+===============================================================================
+현재의 아이디어: gradOutput을 gradInput에 더해주면 될 것이다.
+그러면 이후 레이어의 grad 정보가 학습에 반영되어 이전 레이어의 웨이트가 학습 될 것이다.
+
+-- 현재 문제가 되는 사항
+   - SpatialConvolution2:updateGradInput에서 사용하는 gradOutput과 여기서 얻어지는
+     gradInput값들 사이의 스케일이 너무 다르다. 
+-- 해결책
+   - 어떤 gradOutput이 진짜 gradInput과 gradWeight를 구하는데 사용되는 것인지 확인하여
+     이를 제대로 해당 conv layer의 self.gradOutput에 저장하고, 이를...?
+     (혹시 애초에 gradOutput이라는 것이 한번의 backwawrd에 여러번 존재할 수 있는 것은 아닐까?)
+   - backward시 함수 콜이 어떻게 일어나는지 그림 그리면서 정리 필요
+
