@@ -12,7 +12,7 @@ autotunerCache[3] = {} -- backwardData
 -- giyobe
 
 -- 실험 시 설정 필요 하이퍼 파라미터====
-local BYPASS_RATE = 0
+local BYPASS_RATE = 0.3
 local BYPASS_VERSION = 1
 -- =====================================
 
@@ -580,7 +580,6 @@ function SpatialConvolution2:accGradParameters(input, gradOutput, scale)
     self.scaleT[1] = scale
 
     input, gradOutput = makeContiguous(self, input, gradOutput)
-
     assert(gradOutput:dim() == 3 or gradOutput:dim() == 4, 'gradOutput has to be 3D or 4D');
     if not self.weightDesc then self:resetWeightDescriptors() end
     self:createIODescriptors(input)

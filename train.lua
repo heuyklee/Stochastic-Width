@@ -58,8 +58,8 @@ function Trainer:train(epoch, dataloader)
    -- bypass 결정을 mini-batch 단위가 아닌 epoch 단위로 수행할 수 있도록 해보았다.
    -- epoch 여러개 마다 한 번씩 수행하도록...
    for i = 1,self.nConvTbl do
-      self.model.convTbl[i]:determineBypass()
       self.model.convTbl[i]:saveKernels()
+      self.model.convTbl[i]:determineBypass()
    end
    -- end giyobe
 
@@ -154,7 +154,8 @@ function Trainer:train(epoch, dataloader)
          if self.model.convTbl[i].bypassRate ~= 0 then
 	    for _, idx in ipairs(self.model.convTbl[i].seltbl) do
                -- self.model.convTbl[i-1].gradWeight[idx]:add(self.model.convTbl[i].gradWeight[idx]):mul(0.5)
-               self.model.convTbl[i-1].gradWeight[idx]:copy(self.model.convTbl[i].gradWeight[idx])
+               self.model.convTbl[i-1].gradWeight[idx]:add(self.model.convTbl[i].gradWeight[idx])
+               -- self.model.convTbl[i-1].gradWeight[idx]:copy(self.model.convTbl[i].gradWeight[idx])
             end
          end 
       end
@@ -200,7 +201,9 @@ function Trainer:train(epoch, dataloader)
    -- test에 들어가기 전에 kernel값을 load
    for i = 1,self.nConvTbl do
       self.model.convTbl[i]:loadKernels()
-      self.model.convTbl[i]:setNeighborConv(nil, nil, nil)
+      self.model.convTbl[i]:setNeighborConv(nil, nil, nil) -- 수행하지 않을 시 stack overflow 발생
+      -- 1125_1430 추가
+      self.model.convTbl[i].seltbl={}
    end
    -- end giyobe
 
