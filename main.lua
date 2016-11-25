@@ -72,4 +72,8 @@ for epoch = startEpoch, opt.nEpochs do
    checkpoints.save(epoch, model, trainer.optimState, bestModel, opt, learningLog) -- add learningLog by giyobe
 end
 
+-- giyobe
+print(trainer.confMat)
+-- end giyobe
+
 print(string.format(' * Finished top1: %6.3f  top5: %6.3f', bestTop1, bestTop5))

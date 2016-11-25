@@ -9,6 +9,13 @@
 --  The training loop and learning rate schedule
 --
 
+--=============================================
+-- confusion matrix 만들 때 사용하는 변수
+local CONFMAT_START_EPOCH = 3
+local CONFMAT_END_EPOCH = 5
+--=============================================
+assert(CONFMAT_START_EPOCH <= CONFMAT_END_EPOCH)
+
 local optim = require 'optim'
 
 local M = {}
@@ -28,6 +35,7 @@ function Trainer:__init(model, criterion, opt, optimState)
    self.opt = opt
    self.params, self.gradParams = model:getParameters()
    self.nConvTbl = #self.model.convTbl
+   self.confMat = torch.Tensor(10,10):zero()
 end
 
 function Trainer:train(epoch, dataloader)
@@ -182,7 +190,7 @@ function Trainer:train(epoch, dataloader)
 
       optim.sgd(feval, self.params, self.optimState)
 
-      local top1, top5 = self:computeScore(output, sample.target, 1)
+      local top1, top5 = self:computeScore(output, sample.target, 1, epoch)
       top1Sum = top1Sum + top1*batchSize
       top5Sum = top5Sum + top5*batchSize
       lossSum = lossSum + loss*batchSize
@@ -231,7 +239,7 @@ function Trainer:test(epoch, dataloader)
       local batchSize = output:size(1) / nCrops
       local loss = self.criterion:forward(self.model.output, self.target)
 
-      local top1, top5 = self:computeScore(output, sample.target, nCrops)
+      local top1, top5 = self:computeScore(output, sample.target, nCrops, epoch)
       top1Sum = top1Sum + top1*batchSize
       top5Sum = top5Sum + top5*batchSize
       N = N + batchSize
@@ -250,7 +258,22 @@ function Trainer:test(epoch, dataloader)
    return top1Sum / N, top5Sum / N
 end
 
-function Trainer:computeScore(output, target, nCrops)
+-- giyobe
+function Trainer:makeConfusionMatrix(pred, target, epoch)
+   -- CONFMAT_START_EPOCH 부터 CONFMAT_END_EPOCH 까지 
+   -- 테스트 결과를 취합해 confusion matrix를 만드는 함수
+   if self.model.train == false and epoch >= CONFMAT_START_EPOCH and epoch <= CONFMAT_END_EPOCH then
+      for i = 1,pred:size(1) do
+         self.confMat[target[i]][pred[i][1]] = self.confMat[target[i]][pred[i][1]] + 1
+      end
+      if epoch == CONFMAT_END_EPOCH then
+         self.confMat:cdiv(self.confMat:sum(2):expandAs(self.confMat))
+      end
+   end
+end
+-- end giyobe
+
+function Trainer:computeScore(output, target, nCrops, epoch)
    if nCrops > 1 then
       -- Sum over crops
       output = output:view(output:size(1) / nCrops, nCrops, output:size(2))
@@ -262,6 +285,10 @@ function Trainer:computeScore(output, target, nCrops)
    local batchSize = output:size(1)
 
    local _ , predictions = output:float():sort(2, true) -- descending
+
+   -- giyobe
+   self:makeConfusionMatrix(predictions, target, epoch)
+   -- end giyobe
 
    -- Find which predictions match the target
    local correct = predictions:eq(

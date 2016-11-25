@@ -12,7 +12,7 @@ autotunerCache[3] = {} -- backwardData
 -- giyobe
 
 -- 실험 시 설정 필요 하이퍼 파라미터====
-local BYPASS_RATE = 0.3
+local BYPASS_RATE = 0
 local BYPASS_VERSION = 1
 -- =====================================
 
