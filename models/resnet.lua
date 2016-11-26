@@ -186,6 +186,10 @@ local function createModel(opt)
          model.convTbl[4]:setBypassRate(0.5)
          model.convTbl[6]:setBypassRate(0.5)
          --]]
+         model.convTbl[2]:setBypassRate(0.5)
+         model.convTbl[5]:setBypassRate(0.5)
+         model.convTbl[9]:setBypassRate(0.5)
+         model.convTbl[12]:setBypassRate(0.5)
 
          -- 테스트 용도
          model.BNTbl = {}

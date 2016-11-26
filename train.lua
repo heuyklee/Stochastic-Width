@@ -9,12 +9,6 @@
 --  The training loop and learning rate schedule
 --
 
---=============================================
--- confusion matrix 만들 때 사용하는 변수
-local CONFMAT_START_EPOCH = 3
-local CONFMAT_END_EPOCH = 5
---=============================================
-assert(CONFMAT_START_EPOCH <= CONFMAT_END_EPOCH)
 
 local optim = require 'optim'
 
@@ -36,6 +30,12 @@ function Trainer:__init(model, criterion, opt, optimState)
    self.params, self.gradParams = model:getParameters()
    self.nConvTbl = #self.model.convTbl
    self.confMat = torch.Tensor(10,10):zero()
+   --=============================================
+   -- confusion matrix 만들 때 사용하는 변수
+   self.CONFMAT_START_EPOCH = opt.nEpochs-5
+   self.CONFMAT_END_EPOCH = opt.nEpochs
+   --=============================================
+   assert(self.CONFMAT_START_EPOCH <= self.CONFMAT_END_EPOCH)
 end
 
 function Trainer:train(epoch, dataloader)
@@ -110,6 +110,17 @@ function Trainer:train(epoch, dataloader)
       --]]
       -- end giyobe
 
+      -- giyobe
+      -- 이 위치에서 bypass kernel(이하 BK)의 weight를 모두 0으로 만들어 준다.
+      -- 이유: backward에서 gradInput을 생성하는 과정에서 우리가 임의로 만들어 넣은
+      --       BK(하나의 요소만 1인)가 gradInput에 영향을 주지 않도록 하기 위해서
+      --       1125_2400에 backward에서 forward 전으로 옮겼음
+      for i = 1,self.nConvTbl do
+         self.model.convTbl[i]:makeBKzero()
+         self.model.convTbl[i]:makeBRKzero() -- 1126_0040에 추가되었음
+      end
+      -- end giyobe
+
       local output = self.model:forward(self.input):float()
       local batchSize = output:size(1)
       local loss = self.criterion:forward(self.model.output, self.target)
@@ -132,12 +143,6 @@ function Trainer:train(epoch, dataloader)
       -- end giyobe
 
       -- giyobe
-      -- 이 위치에서 bypass kernel(이하 BK)의 weight를 모두 0으로 만들어 준다.
-      -- 이유: backward에서 gradInput을 생성하는 과정에서 우리가 임의로 만들어 넣은
-      --       BK(하나의 요소만 1인)가 gradInput에 영향을 주지 않도록 하기 위해서
-      for i = 1,self.nConvTbl do
-         self.model.convTbl[i]:makeBKzero()
-      end
       --[[
       print(self.model.convTbl[2].seltbl)
       for _, idx in ipairs(self.model.convTbl[2].seltbl) do
@@ -161,13 +166,12 @@ function Trainer:train(epoch, dataloader)
       for i = #self.model.convTbl,2,-1 do
          if self.model.convTbl[i].bypassRate ~= 0 then
 	    for _, idx in ipairs(self.model.convTbl[i].seltbl) do
-               -- self.model.convTbl[i-1].gradWeight[idx]:add(self.model.convTbl[i].gradWeight[idx]):mul(0.5)
                self.model.convTbl[i-1].gradWeight[idx]:add(self.model.convTbl[i].gradWeight[idx])
+               -- self.model.convTbl[i-1].gradWeight[idx]:add(self.model.convTbl[i].gradWeight[idx]):mul(0.5)
                -- self.model.convTbl[i-1].gradWeight[idx]:copy(self.model.convTbl[i].gradWeight[idx])
             end
          end 
       end
-      --
       -- end giyobe
 
       -- giyobe
@@ -262,11 +266,11 @@ end
 function Trainer:makeConfusionMatrix(pred, target, epoch)
    -- CONFMAT_START_EPOCH 부터 CONFMAT_END_EPOCH 까지 
    -- 테스트 결과를 취합해 confusion matrix를 만드는 함수
-   if self.model.train == false and epoch >= CONFMAT_START_EPOCH and epoch <= CONFMAT_END_EPOCH then
+   if self.model.train == false and epoch >= self.CONFMAT_START_EPOCH and epoch <= self.CONFMAT_END_EPOCH then
       for i = 1,pred:size(1) do
          self.confMat[target[i]][pred[i][1]] = self.confMat[target[i]][pred[i][1]] + 1
       end
-      if epoch == CONFMAT_END_EPOCH then
+      if epoch == self.CONFMAT_END_EPOCH then
          self.confMat:cdiv(self.confMat:sum(2):expandAs(self.confMat))
       end
    end

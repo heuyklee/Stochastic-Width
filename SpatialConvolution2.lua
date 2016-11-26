@@ -104,6 +104,15 @@ function SpatialConvolution2:makeBKzero()
    end
 end
 
+function SpatialConvolution2:makeBRKzero()
+   -- BK 되는 feature map을 사용하지 않고 학습이 진행되도록 커널의 특정 웨이트 0으로
+   for _, idx in ipairs(self.seltbl) do
+      for i = 1, self.nOutputPlane do
+         self.weight[i][idx]:zero()
+      end
+   end 
+end
+
 function SpatialConvolution2:setBypassRate(bypassRate)
    self.bypassRate = bypassRate
    return self
