@@ -77,6 +77,7 @@ function SpatialConvolution2:gradOutput2gradInput()
 end
 --]]
 
+--[[
 function SpatialConvolution2:makeBypass()
    -- load/save current kernel before execute bypass mini-batch
    self:loadKernels()
@@ -92,18 +93,21 @@ function SpatialConvolution2:makeBypass()
       self.fidx = torch.randperm(self.nInputPlane) -- 이전 layer의 어떤 feature를 가져올지
       for i, idx in ipairs(self.seltbl) do
 	 self.weight[idx]:zero()
-	 self.weight[idx][self.fidx[i]][2][2] = 1 
+	 self.weight[idx][self.fidx[i] ][2][2] = 1 
       end
    end
 end
+--]]
 
 -- 1121_1800 이후로 다시 사용하도록...
 function SpatialConvolution2:makeBKzero()
    for _, idx in ipairs(self.seltbl) do
       self.weight[idx]:zero()
+      self.bias[idx] = 0
    end
 end
 
+--[[
 function SpatialConvolution2:makeBRKzero()
    -- BK 되는 feature map을 사용하지 않고 학습이 진행되도록 커널의 특정 웨이트 0으로
    for _, idx in ipairs(self.seltbl) do
@@ -112,6 +116,7 @@ function SpatialConvolution2:makeBRKzero()
       end
    end 
 end
+--]]
 
 function SpatialConvolution2:setBypassRate(bypassRate)
    self.bypassRate = bypassRate
@@ -140,11 +145,13 @@ function SpatialConvolution2:loadKernels()
    -- self.seltbl내 bypass된 kernel의 idx를 이용 
    for _, idx in ipairs(self.seltbl) do
       self.weight[idx]:copy(self.beforeWeight[idx])
+      self.bias[idx] = self.beforeBias[idx]
    end
 end
 
 function SpatialConvolution2:saveKernels()
    self.beforeWeight:copy(self.weight)
+   self.beforeBias:copy(self.bias)
 end
 -- end giyobe
 
@@ -173,6 +180,7 @@ function SpatialConvolution2:__init(nInputPlane, nOutputPlane,
     self.sel = torch.CudaTensor()
     self.seltbl = {}
     self.beforeWeight = torch.Tensor():resizeAs(self.weight):copy(self.weight)
+    self.beforeBias = torch.Tensor():resizeAs(self.bias):copy(self.bias)
     self.gradOutput = torch.CudaTensor()
     self.gen = torch.Generator()
     -- end giyobe
