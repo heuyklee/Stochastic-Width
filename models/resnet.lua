@@ -161,11 +161,13 @@ local function createModel(opt)
       if depth == 20 then
          -- model:initConvTbl()
          model.convTbl = {}
+         model.BNTbl = {}
          tt = {{4,1,1,1,1},{4,1,1,1,4},{4,2,1,1,1},{4,2,1,1,4},{4,3,1,1,1},{4,3,1,1,4},
                {5,1,1,1,1},{5,1,1,1,4},{5,2,1,1,1},{5,2,1,1,4},{5,3,1,1,1},{5,3,1,1,4},
                {6,1,1,1,1},{6,1,1,1,4},{6,2,1,1,1},{6,2,1,1,4},{6,3,1,1,1},{6,3,1,1,4}}
          for i=1,#tt do
             model.convTbl[i] = model:get(tt[i][1]):get(tt[i][2]):get(tt[i][3]):get(tt[i][4]):get(tt[i][5])
+            model.BNTbl[i] = model:get(tt[i][1]):get(tt[i][2]):get(tt[i][3]):get(tt[i][4]):get(tt[i][5]+1)
          end
          
          -- nInputPlane ~= nOutputPlane 경우에 bypassRate 0으로 set
@@ -186,15 +188,14 @@ local function createModel(opt)
          model.convTbl[4]:setBypassRate(0.5)
          model.convTbl[6]:setBypassRate(0.5)
          --]]
+         --
          model.convTbl[2]:setBypassRate(0.5)
          model.convTbl[5]:setBypassRate(0.5)
          model.convTbl[9]:setBypassRate(0.5)
          model.convTbl[12]:setBypassRate(0.5)
+         --
 
          -- 테스트 용도
-         model.BNTbl = {}
-         model.BNTbl[1] = model:get(4):get(1):get(1):get(1):get(2)
-         model.BNTbl[2] = model:get(4):get(1):get(1):get(1):get(5)
          model.RLTbl = {}
          model.RLTbl[1] = model:get(4):get(1):get(1):get(1):get(3)
          model.RLTbl[2] = model:get(6):get(3):get(1):get(1):get(3)

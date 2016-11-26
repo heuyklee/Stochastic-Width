@@ -117,7 +117,7 @@ function Trainer:train(epoch, dataloader)
       --       1125_2400에 backward에서 forward 전으로 옮겼음
       for i = 1,self.nConvTbl do
          self.model.convTbl[i]:makeBKzero()
-         self.model.convTbl[i]:makeBRKzero() -- 1126_0040에 추가되었음
+         -- self.model.convTbl[i]:makeBRKzero() -- 1126_0040에 추가되었음
       end
       -- end giyobe
 
@@ -169,6 +169,9 @@ function Trainer:train(epoch, dataloader)
                self.model.convTbl[i-1].gradWeight[idx]:add(self.model.convTbl[i].gradWeight[idx])
                -- self.model.convTbl[i-1].gradWeight[idx]:add(self.model.convTbl[i].gradWeight[idx]):mul(0.5)
                -- self.model.convTbl[i-1].gradWeight[idx]:copy(self.model.convTbl[i].gradWeight[idx])
+               -- 1126_1630 BN에 대한 backprop도 고려
+               self.model.BNTbl[i-1].gradWeight[idx] = self.model.BNTbl[i-1].gradWeight[idx] + self.model.BNTbl[i].gradWeight[idx]
+               self.model.BNTbl[i-1].gradBias[idx] = self.model.BNTbl[i-1].gradBias[idx] + self.model.BNTbl[i].gradBias[idx]
             end
          end 
       end
