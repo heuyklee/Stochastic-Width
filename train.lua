@@ -121,16 +121,28 @@ function Trainer:train(epoch, dataloader)
          -- self.model.convTbl[i]:makeBRKzero() -- 1126_0040에 추가되었음
          -- conv 전 BN의 weight가 앞에 있는 conv의 gradOutput에 영향 미치므로 여기서
          -- (또는 backward 전에서도 가능)BN의 weight를 뒤로 복사해서 가지도록 한다.
+         --[[
          for _,idx in ipairs(self.model.convTbl[i].seltbl) do
             self.model.BNTbl[i].weight[idx] = self.model.BNTbl[i-1].weight[idx]
             self.model.BNTbl[i].bias[idx] = self.model.BNTbl[i-1].bias[idx]
          end
+         --]]
       end
       -- end giyobe
 
       local output = self.model:forward(self.input):float()
       local batchSize = output:size(1)
       local loss = self.criterion:forward(self.model.output, self.target)
+
+      -- giyobe
+      -- 위에서 forward전에 있던 것을 forward 뒤로 넘겨서 실험
+      for i = 2,self.nConvTbl do
+         for _,idx in ipairs(self.model.convTbl[i].seltbl) do
+            self.model.BNTbl[i].weight[idx] = self.model.BNTbl[i-1].weight[idx]
+            self.model.BNTbl[i].bias[idx] = self.model.BNTbl[i-1].bias[idx]
+         end
+      end 
+      -- end giyobe
 
       -- giyobe
       -- 여기서는 backward 시 제대로 된 gradInput 생성을 위하여 우리가 임의로 수정했던

@@ -563,7 +563,7 @@ function SpatialConvolution2:updateGradInput(input, gradOutput)
        end 
     end
     --]]
-    self.gradOutput:resizeAs(gradOutput):copy(gradOutput)
+    -- self.gradOutput:resizeAs(gradOutput):copy(gradOutput)
     -- print(self.gradOutput:sum())
     -- self.gradOutput = torch.CudaTensor():resizeAs(gradOutput):copy(gradOutput)
     -- self.gradOutput:resizeAs(gradOutput):copy(gradOutput)
