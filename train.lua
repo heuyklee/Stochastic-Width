@@ -65,11 +65,13 @@ function Trainer:train(epoch, dataloader)
 
    -- bypass 결정을 mini-batch 단위가 아닌 epoch 단위로 수행할 수 있도록 해보았다.
    -- epoch 여러개 마다 한 번씩 수행하도록...
+   --[[
    for i = 1,self.nConvTbl do
       self.model.convTbl[i]:saveKernels()
       self.model.BNTbl[i]:saveKernels()
       self.model.convTbl[i]:determineBypass()
    end
+   --]]
    -- end giyobe
 
    print('=> Training epoch # ' .. epoch)
@@ -78,6 +80,14 @@ function Trainer:train(epoch, dataloader)
    for n, sample in dataloader:run() do
       -- giyobe
       -- bypass kernel을 결정하고 이들의 weight를 로드, 저장, 0또는 1로 세팅하는 작업 수행
+      for i = 1,self.nConvTbl do
+         self.model.convTbl[i]:loadKernels()
+         self.model.BNTbl[i]:loadKernels(self.model.convTbl[i].seltbl)
+
+         self.model.convTbl[i]:saveKernels()
+         self.model.BNTbl[i]:saveKernels()
+         self.model.convTbl[i]:determineBypass()
+      end
       --[[
       for i = 1,#self.model.convTbl do
 	 self.model.convTbl[i]:determineBypass()
@@ -121,12 +131,12 @@ function Trainer:train(epoch, dataloader)
          -- self.model.convTbl[i]:makeBRKzero() -- 1126_0040에 추가되었음
          -- conv 전 BN의 weight가 앞에 있는 conv의 gradOutput에 영향 미치므로 여기서
          -- (또는 backward 전에서도 가능)BN의 weight를 뒤로 복사해서 가지도록 한다.
-         --[[
+         --
          for _,idx in ipairs(self.model.convTbl[i].seltbl) do
             self.model.BNTbl[i].weight[idx] = self.model.BNTbl[i-1].weight[idx]
             self.model.BNTbl[i].bias[idx] = self.model.BNTbl[i-1].bias[idx]
          end
-         --]]
+         --
       end
       -- end giyobe
 
@@ -136,12 +146,14 @@ function Trainer:train(epoch, dataloader)
 
       -- giyobe
       -- 위에서 forward전에 있던 것을 forward 뒤로 넘겨서 실험
+      --[[
       for i = 2,self.nConvTbl do
          for _,idx in ipairs(self.model.convTbl[i].seltbl) do
             self.model.BNTbl[i].weight[idx] = self.model.BNTbl[i-1].weight[idx]
             self.model.BNTbl[i].bias[idx] = self.model.BNTbl[i-1].bias[idx]
          end
       end 
+      --]]
       -- end giyobe
 
       -- giyobe
