@@ -41,7 +41,7 @@ function checkpoint.latest(opt)
    return latest, optimState
 end
 
-function checkpoint.save(epoch, model, optimState, isBestModel, opt, learningLog) -- add learningLog by giyobe
+function checkpoint.save(epoch, model, optimState, isBestModel, opt, learningLog, confMat) -- add learningLog, confMat by giyobe
    -- don't save the DataParallelTable for easier loading on other machines
    if torch.type(model) == 'nn.DataParallelTable' then
       model = model:get(1)
@@ -63,6 +63,7 @@ function checkpoint.save(epoch, model, optimState, isBestModel, opt, learningLog
 
    -- by giyobe
    torch.save(paths.concat(opt.save, 'learningLog.t7'), learningLog)
+   torch.save(paths.concat(opt.save, 'confMat.t7'), confMat)
    -- end by giyobe
 
    if isBestModel then

@@ -12,6 +12,7 @@
 local nn = require 'nn'
 require 'cunn'
 require '../SpatialConvolution2'
+require '../SpatialBatchNormalization2'
 
 local Convolution = cudnn.SpatialConvolution
 local Convolution2 = SpatialConvolution2
@@ -19,6 +20,7 @@ local Avg = cudnn.SpatialAveragePooling
 local ReLU = cudnn.ReLU
 local Max = nn.SpatialMaxPooling
 local SBatchNorm = nn.SpatialBatchNormalization
+local SBatchNorm2 = SpatialBatchNormalization2
 
 local function createModel(opt)
    local depth = opt.depth
@@ -54,10 +56,10 @@ local function createModel(opt)
 
       local s = nn.Sequential()
       s:add(Convolution2(nInputPlane,n,3,3,stride,stride,1,1))
-      s:add(SBatchNorm(n))
+      s:add(SBatchNorm2(n))
       s:add(ReLU(true))
       s:add(Convolution2(n,n,3,3,1,1,1,1))
-      s:add(SBatchNorm(n))
+      s:add(SBatchNorm2(n))
 
       return nn.Sequential()
          :add(nn.ConcatTable()
@@ -183,17 +185,24 @@ local function createModel(opt)
          -- 우선 테스트를 위해 2,4,6 에서만 각 노드가 0.5의 확률로 bypass 되도록 설정
          -- 만일 네트워크 전체에 대한 테스트 시 아래부분 주석처리 후 SpatialConvolution2.lua
          -- 상단에 BYPASS_RATE 설정 이후 수행 가능
-         --[[
-         model.convTbl[2]:setBypassRate(0.5)
-         model.convTbl[4]:setBypassRate(0.5)
-         model.convTbl[6]:setBypassRate(0.5)
-         --]]
          --
+         model.convTbl[2]:setBypassRate(0.2)
+         model.convTbl[3]:setBypassRate(0.2)
+         model.convTbl[4]:setBypassRate(0.2)
+         model.convTbl[5]:setBypassRate(0.2)
+         model.convTbl[6]:setBypassRate(0.2)
+         -- model.convTbl[9]:setBypassRate(0.5)
+         -- model.convTbl[10]:setBypassRate(0.5)
+         -- model.convTbl[11]:setBypassRate(0.5)
+         -- model.convTbl[12]:setBypassRate(0.5)
+         -- model.convTbl[17]:setBypassRate(0.5)
+         --
+         --[[
          model.convTbl[2]:setBypassRate(0.5)
          model.convTbl[5]:setBypassRate(0.5)
          model.convTbl[9]:setBypassRate(0.5)
          model.convTbl[12]:setBypassRate(0.5)
-         --
+         --]]
 
          -- 테스트 용도
          model.RLTbl = {}

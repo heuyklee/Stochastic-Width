@@ -67,6 +67,7 @@ function Trainer:train(epoch, dataloader)
    -- epoch 여러개 마다 한 번씩 수행하도록...
    for i = 1,self.nConvTbl do
       self.model.convTbl[i]:saveKernels()
+      self.model.BNTbl[i]:saveKernels()
       self.model.convTbl[i]:determineBypass()
    end
    -- end giyobe
@@ -115,9 +116,15 @@ function Trainer:train(epoch, dataloader)
       -- 이유: backward에서 gradInput을 생성하는 과정에서 우리가 임의로 만들어 넣은
       --       BK(하나의 요소만 1인)가 gradInput에 영향을 주지 않도록 하기 위해서
       --       1125_2400에 backward에서 forward 전으로 옮겼음
-      for i = 1,self.nConvTbl do
+      for i = 2,self.nConvTbl do -- 어차피 i==1 에서 bR 무조건 0 따라서 i는 2부터
          self.model.convTbl[i]:makeBKzero()
          -- self.model.convTbl[i]:makeBRKzero() -- 1126_0040에 추가되었음
+         -- conv 전 BN의 weight가 앞에 있는 conv의 gradOutput에 영향 미치므로 여기서
+         -- (또는 backward 전에서도 가능)BN의 weight를 뒤로 복사해서 가지도록 한다.
+         for _,idx in ipairs(self.model.convTbl[i].seltbl) do
+            self.model.BNTbl[i].weight[idx] = self.model.BNTbl[i-1].weight[idx]
+            self.model.BNTbl[i].bias[idx] = self.model.BNTbl[i-1].bias[idx]
+         end
       end
       -- end giyobe
 
@@ -217,6 +224,7 @@ function Trainer:train(epoch, dataloader)
    -- test에 들어가기 전에 kernel값을 load
    for i = 1,self.nConvTbl do
       self.model.convTbl[i]:loadKernels()
+      self.model.BNTbl[i]:loadKernels(self.model.convTbl[i].seltbl)
       self.model.convTbl[i]:setNeighborConv(nil, nil, nil) -- 수행하지 않을 시 stack overflow 발생
       -- 1125_1430 추가
       self.model.convTbl[i].seltbl={}
@@ -329,7 +337,7 @@ function Trainer:learningRate(epoch)
    if self.opt.dataset == 'imagenet' then
       decay = math.floor((epoch - 1) / 30)
    elseif self.opt.dataset == 'cifar10' then
-      decay = epoch >= 122 and 2 or epoch >= 81 and 1 or 0
+      decay = epoch >= 163 and 3 or epoch >= 122 and 2 or epoch >= 81 and 1 or 0
    elseif self.opt.dataset == 'cifar100' then
       decay = epoch >= 122 and 2 or epoch >= 81 and 1 or 0
    end
