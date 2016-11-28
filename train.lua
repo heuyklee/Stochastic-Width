@@ -7,7 +7,6 @@
 --  of patent rights can be found in the PATENTS file in the same directory.
 --
 --  The training loop and learning rate schedule
---
 
 
 local optim = require 'optim'
