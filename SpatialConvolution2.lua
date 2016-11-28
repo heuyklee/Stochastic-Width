@@ -103,7 +103,7 @@ end
 function SpatialConvolution2:makeBKzero()
    for _, idx in ipairs(self.seltbl) do
       self.weight[idx]:zero()
-      self.bias[idx] = 0
+      -- self.bias[idx] = 0
    end
 end
 
@@ -145,13 +145,13 @@ function SpatialConvolution2:loadKernels()
    -- self.seltbl내 bypass된 kernel의 idx를 이용 
    for _, idx in ipairs(self.seltbl) do
       self.weight[idx]:copy(self.beforeWeight[idx])
-      self.bias[idx] = self.beforeBias[idx]
+      -- self.bias[idx] = self.beforeBias[idx]
    end
 end
 
 function SpatialConvolution2:saveKernels()
    self.beforeWeight:copy(self.weight)
-   self.beforeBias:copy(self.bias)
+   -- self.beforeBias:copy(self.bias)
 end
 -- end giyobe
 

@@ -257,6 +257,11 @@ local function createModel(opt)
       end
    end
 
+   -- giyobe
+   ConvInit('SpatialConvolution2')
+   BNInit('SpatialBatchNormalization2')
+   -- end giyobe
+
    ConvInit('cudnn.SpatialConvolution')
    ConvInit('nn.SpatialConvolution')
    BNInit('fbnn.SpatialBatchNormalization')
