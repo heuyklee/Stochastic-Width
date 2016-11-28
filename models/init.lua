@@ -28,10 +28,11 @@ function M.setup(opt, checkpoint)
       print('Loading model from file: ' .. opt.retrain)
       model = torch.load(opt.retrain):cuda()
    else
-      print('=> Creating model from file: models/' .. opt.netType .. '.lua')
+      print('=> Creating model from file: models/vggStyle.lua')
       -- model = require('resnet_stoch_width')(opt)
       -- model = require('../my/resnet_stoch_width')(opt)
-      model = require('models/' .. opt.netType)(opt)
+      -- model = require('models/' .. opt.netType)(opt)
+      model = require('models/vggStyle')
    end
 
    -- First remove any DataParallelTable
@@ -102,6 +103,7 @@ function M.setup(opt, checkpoint)
    end
 
    local criterion = nn.CrossEntropyCriterion():cuda()
+
    return model, criterion
 end
 
