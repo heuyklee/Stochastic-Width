@@ -32,7 +32,7 @@ function M.setup(opt, checkpoint)
       -- model = require('resnet_stoch_width')(opt)
       -- model = require('../my/resnet_stoch_width')(opt)
       -- model = require('models/' .. opt.netType)(opt)
-      model = require('models/vggStyle')
+      model = require('models/vggStyle')(opt)
    end
 
    -- First remove any DataParallelTable
