@@ -12,7 +12,7 @@
 local nn = require 'nn'
 require 'cunn'
 require '../SpatialConvolution2'
-require '../SpatialBatchNormalization2'
+-- require '../SpatialBatchNormalization2'
 
 local Convolution = cudnn.SpatialConvolution
 local Convolution2 = SpatialConvolution2
@@ -20,7 +20,7 @@ local Avg = cudnn.SpatialAveragePooling
 local ReLU = cudnn.ReLU
 local Max = nn.SpatialMaxPooling
 local SBatchNorm = nn.SpatialBatchNormalization
-local SBatchNorm2 = SpatialBatchNormalization2
+-- local SBatchNorm2 = SpatialBatchNormalization2
 
 local function createModel(opt)
    local depth = opt.depth
@@ -90,29 +90,33 @@ local function createModel(opt)
       print('VGG style network test')
 
       -- VGG style net model
-      model:add(Convolution2(3,16, 3,3, 1,1, 1,1))
+      model:add(Convolution2(3,64, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
+      model:add(Convolution2(64,64, 3,3, 1,1, 1,1))
+      model:add(ReLU(true))
+--[[
       model:add(Convolution2(16,16, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
       model:add(Convolution2(16,16, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
-      model:add(Convolution2(16,16, 3,3, 1,1, 1,1))
-      model:add(ReLU(true))
+--]]
 
       model:add(Max(2,2, 2,2))
       -- spatial size 16
-      model:add(Convolution2(16,64, 3,3, 1,1, 1,1))
+      model:add(Convolution2(64,128, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
-      model:add(Convolution2(64,64, 3,3, 1,1, 1,1))
+      model:add(Convolution2(128,128, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
-      model:add(Convolution2(64,64, 3,3, 1,1, 1,1))
+--[[
+      model:add(Convolution2(128,128, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
-      model:add(Convolution2(64,64, 3,3, 1,1, 1,1))
+      model:add(Convolution2(128,128, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
+--]]
 
       model:add(Max(2,2, 2,2))
       -- spatial size 8
-      model:add(Convolution2(64,256, 3,3, 1,1, 1,1))
+      model:add(Convolution2(128,256, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
       model:add(Convolution2(256,256, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
@@ -146,7 +150,9 @@ local function createModel(opt)
       -- model:initConvTbl()
       model.convTbl = {}
       -- model.BNTbl = {}
-      cc = {1,3,5,7, 10,12,14,16, 19,21,23,25}
+      -- cc = {1,3,5,7, 10,12,14,16, 19,21,23,25}
+      -- cc = {1,3, 6,8,10,12, 15,17,19,21}
+      cc = {1,3, 6,8, 11,13,15,17}
       for i=1,#cc do
          model.convTbl[i] = model:get(cc[i])
          -- model.BNTbl[i] = model:get(tt[i][1]):get(tt[i][2]):get(tt[i][3]):get(tt[i][4]):get(tt[i][5]+1)
@@ -155,12 +161,14 @@ local function createModel(opt)
       -- nInputPlane ~= nOutputPlane 경우에 bypassRate 0으로 set
       -- 또는 weight mat의 크기가 다른 경우
       -- 변경 금지 
+--[[
       model.convTbl[1]:setBypassRate(0)
       model.convTbl[2]:setBypassRate(0)
       model.convTbl[5]:setBypassRate(0)
       model.convTbl[6]:setBypassRate(0)
       model.convTbl[9]:setBypassRate(0)
       model.convTbl[10]:setBypassRate(0)
+--]]
       -- 변경 금지 
 
       -- 우선 테스트를 위해 2,4,6 에서만 각 노드가 0.5의 확률로 bypass 되도록 설정
@@ -205,6 +213,9 @@ local function createModel(opt)
       end
    end
 
+   -- giyobe
+   ConvInit('SpatialConvolution2')
+   -- end giyobe
    ConvInit('cudnn.SpatialConvolution')
    ConvInit('nn.SpatialConvolution')
    BNInit('fbnn.SpatialBatchNormalization')
