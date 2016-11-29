@@ -90,20 +90,39 @@ local function createModel(opt)
       print('VGG style network test')
 
       -- VGG style net model
-      model:add(Convolution2(3,64, 3,3, 1,1, 1,1))
+      model:add(Convolution2(3,16, 3,3, 1,1, 1,1))
+      model:add(ReLU(true))
+      model:add(Convolution2(16,16, 3,3, 1,1, 1,1))
+      model:add(ReLU(true))
+--[[
+      model:add(Convolution2(16,16, 3,3, 1,1, 1,1))
+      model:add(ReLU(true))
+      model:add(Convolution2(16,16, 3,3, 1,1, 1,1))
+      model:add(ReLU(true))
+--]]
+
+      model:add(Max(2,2, 2,2))
+      model:add(nn.Dropout(0.4))
+      -- spatial size 16
+      model:add(Convolution2(16,64, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
       model:add(Convolution2(64,64, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
 --[[
-      model:add(Convolution2(16,16, 3,3, 1,1, 1,1))
+      model:add(Convolution2(64,64, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
-      model:add(Convolution2(16,16, 3,3, 1,1, 1,1))
+      model:add(Convolution2(64,64, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
 --]]
 
       model:add(Max(2,2, 2,2))
-      -- spatial size 16
+      model:add(nn.Dropout(0.4))
+      -- spatial size 8
       model:add(Convolution2(64,128, 3,3, 1,1, 1,1))
+      model:add(ReLU(true))
+      model:add(Convolution2(128,128, 3,3, 1,1, 1,1))
+      model:add(ReLU(true))
+      model:add(Convolution2(128,128, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
       model:add(Convolution2(128,128, 3,3, 1,1, 1,1))
       model:add(ReLU(true))
@@ -114,20 +133,9 @@ local function createModel(opt)
       model:add(ReLU(true))
 --]]
 
-      model:add(Max(2,2, 2,2))
-      -- spatial size 8
-      model:add(Convolution2(128,256, 3,3, 1,1, 1,1))
-      model:add(ReLU(true))
-      model:add(Convolution2(256,256, 3,3, 1,1, 1,1))
-      model:add(ReLU(true))
-      model:add(Convolution2(256,256, 3,3, 1,1, 1,1))
-      model:add(ReLU(true))
-      model:add(Convolution2(256,256, 3,3, 1,1, 1,1))
-      model:add(ReLU(true))
-
       model:add(Avg(8, 8, 1, 1))
-      model:add(nn.View(256):setNumInputDims(3))
-      model:add(nn.Linear(256, 10))
+      model:add(nn.View(128):setNumInputDims(3))
+      model:add(nn.Linear(128, 10))
       
       -- The ResNet CIFAR-10 model
       --[[
@@ -152,7 +160,8 @@ local function createModel(opt)
       -- model.BNTbl = {}
       -- cc = {1,3,5,7, 10,12,14,16, 19,21,23,25}
       -- cc = {1,3, 6,8,10,12, 15,17,19,21}
-      cc = {1,3, 6,8, 11,13,15,17}
+      -- cc = {1,3, 6,8, 11,13,15,17,19,21}
+      cc = {1,3, 7,9, 13,15,17,19}
       for i=1,#cc do
          model.convTbl[i] = model:get(cc[i])
          -- model.BNTbl[i] = model:get(tt[i][1]):get(tt[i][2]):get(tt[i][3]):get(tt[i][4]):get(tt[i][5]+1)
@@ -161,6 +170,9 @@ local function createModel(opt)
       -- nInputPlane ~= nOutputPlane 경우에 bypassRate 0으로 set
       -- 또는 weight mat의 크기가 다른 경우
       -- 변경 금지 
+
+      model.convTbl[7]:setBypassRate(0.5)
+      -- model.convTbl[8]:setBypassRate(0.5)
 --[[
       model.convTbl[1]:setBypassRate(0)
       model.convTbl[2]:setBypassRate(0)

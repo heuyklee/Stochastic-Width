@@ -27,7 +27,7 @@ function Trainer:__init(model, criterion, opt, optimState)
    }
    self.opt = opt
    self.params, self.gradParams = model:getParameters()
-   -- self.nConvTbl = #self.model.convTbl
+   self.nConvTbl = #self.model.convTbl
    self.confMat = torch.Tensor(10,10):zero()
    --=============================================
    -- confusion matrix 만들 때 사용하는 변수
@@ -56,13 +56,13 @@ function Trainer:train(epoch, dataloader)
    -- 각 SpatialConvolution2 module에서 전체 네트워크의 SpatialConvolution2 module에 접근할
    -- 수 있도록 해당 테이블을 세팅해준다.
    -- 처음과 마지막 conv의 neighbor는 manually set
---[[
+--
    self.model.convTbl[1]:setNeighborConv(nil, self.model.convTbl[2], 1)
    self.model.convTbl[self.nConvTbl]:setNeighborConv(self.model.convTbl[self.nConvTbl-1], nil, self.nConvTbl)
    for i = 2,self.nConvTbl-1 do
       self.model.convTbl[i]:setNeighborConv(self.model.convTbl[i-1], self.model.convTbl[i+1], i)
    end
---]]
+--
 
    print('=> Training epoch # ' .. epoch)
    -- set the batch norm to training mode
@@ -70,13 +70,13 @@ function Trainer:train(epoch, dataloader)
    for n, sample in dataloader:run() do
       -- giyobe
       -- bypass kernel을 결정하고 이들의 weight를 로드, 저장, 0또는 1로 세팅하는 작업 수행
---[[
+--
       for i = 1,self.nConvTbl do
          self.model.convTbl[i]:loadKernels()
          self.model.convTbl[i]:saveKernels()
          self.model.convTbl[i]:determineBypass()
       end
---]]
+--
       -- end giyobe
 
       local dataTime = dataTimer:time().real
@@ -89,11 +89,11 @@ function Trainer:train(epoch, dataloader)
       -- 이유: backward에서 gradInput을 생성하는 과정에서 우리가 임의로 만들어 넣은
       --       BK(하나의 요소만 1인)가 gradInput에 영향을 주지 않도록 하기 위해서
       --       1125_2400에 backward에서 forward 전으로 옮겼음
---[[
+--
       for i = 2,self.nConvTbl do -- 어차피 i==1 에서 bR 무조건 0 따라서 i는 2부터
          self.model.convTbl[i]:makeBKzero()
       end
---]]
+--
       -- end giyobe
 
       local output = self.model:forward(self.input):float()
@@ -107,7 +107,7 @@ function Trainer:train(epoch, dataloader)
       -- giyobe
       -- backward를 통해 생성된 gradWeight를 이전 layer의 gradWeight에 더해주기 위해(BK 한정)
       -- 1122_1900 이후에 gradWeight가 아닌 gradOutput을 통한 접근으로 사용하지 않음
---[[
+--
       for i = #self.model.convTbl,2,-1 do
          if self.model.convTbl[i].bypassRate ~= 0 then
 	    for _, idx in ipairs(self.model.convTbl[i].seltbl) do
@@ -115,7 +115,7 @@ function Trainer:train(epoch, dataloader)
             end
          end 
       end
---]]
+--
       -- end giyobe
 
       optim.sgd(feval, self.params, self.optimState)
@@ -137,14 +137,14 @@ function Trainer:train(epoch, dataloader)
    end
    -- giyobe
    -- test에 들어가기 전에 kernel값을 load
---[[
+--
    for i = 1,self.nConvTbl do
       self.model.convTbl[i]:loadKernels()
       self.model.convTbl[i]:setNeighborConv(nil, nil, nil) -- 수행하지 않을 시 stack overflow 발생
       -- 1125_1430 추가
       self.model.convTbl[i].seltbl={}
    end
---]]
+--
    -- end giyobe
 
    return top1Sum / N, top5Sum / N, lossSum / N

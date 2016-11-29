@@ -19,7 +19,7 @@ function M.parse(arg)
    cmd:option('-data',       '',         'Path to dataset')
    cmd:option('-dataset',    'cifar10', 'Options: imagenet | cifar10 | cifar100')
    cmd:option('-manualSeed', 0,          'Manually set RNG seed')
-   cmd:option('-nGPU',       2,          'Number of GPUs to use by default')
+   cmd:option('-nGPU',       1,          'Number of GPUs to use by default')
    cmd:option('-backend',    'cudnn',    'Options: cudnn | cunn')
    cmd:option('-cudnn',      'fastest',  'Options: fastest | default | deterministic') cmd:option('-gen',        'gen',      'Path to save generated files')
    ------------- Data options ------------------------
