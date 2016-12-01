@@ -185,12 +185,13 @@ local function createModel(opt)
          -- 우선 테스트를 위해 2,4,6 에서만 각 노드가 0.5의 확률로 bypass 되도록 설정
          -- 만일 네트워크 전체에 대한 테스트 시 아래부분 주석처리 후 SpatialConvolution2.lua
          -- 상단에 BYPASS_RATE 설정 이후 수행 가능
-         --
+         --[[
          model.convTbl[2]:setBypassRate(0.5)
          model.convTbl[3]:setBypassRate(0.5)
          model.convTbl[4]:setBypassRate(0.5)
          model.convTbl[5]:setBypassRate(0.5)
          model.convTbl[6]:setBypassRate(0.5)
+         --]]
          -- model.convTbl[9]:setBypassRate(0.5)
          -- model.convTbl[10]:setBypassRate(0.5)
          -- model.convTbl[11]:setBypassRate(0.5)
