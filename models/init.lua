@@ -93,7 +93,7 @@ function M.setup(opt, checkpoint)
             -- local Select2 = require '../Select2'  
             -- local SpatialConvolution2 = require '../SpatialConvolution2'
             require '../SpatialConvolution2'
-            -- require '../SpatialBatchNormalization2'
+            require '../SpatialBatchNormalization2'
             -- end giyobe
          end)
       dpt.gradInput = nil

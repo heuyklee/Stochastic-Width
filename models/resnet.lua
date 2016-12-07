@@ -161,7 +161,8 @@ local function createModel(opt)
       -- model.convTbl에는 SpatialConvolution2 module에 대한 포인터를 가지고 있어서
       -- model.convTbl[1~18](depth:20 인 경우)와 같이 접근하여 사용
       if depth == 20 then
-         -- model:initConvTbl()
+         model:initConvTbl()
+         --[[
          model.convTbl = {}
          model.BNTbl = {}
          tt = {{4,1,1,1,1},{4,1,1,1,4},{4,2,1,1,1},{4,2,1,1,4},{4,3,1,1,1},{4,3,1,1,4},
@@ -172,25 +173,26 @@ local function createModel(opt)
             model.BNTbl[i] = model:get(tt[i][1]):get(tt[i][2]):get(tt[i][3]):get(tt[i][4]):get(tt[i][5]+1)
          end
          
+         --]]
          -- nInputPlane ~= nOutputPlane 경우에 bypassRate 0으로 set
          -- 또는 weight mat의 크기가 다른 경우
          -- 변경 금지 
-         model.convTbl[1]:setBypassRate(0)
-         model.convTbl[7]:setBypassRate(0)
-         model.convTbl[8]:setBypassRate(0)
-         model.convTbl[13]:setBypassRate(0)
-         model.convTbl[14]:setBypassRate(0)
+         model:convTbl(1):setBypassRate(0)
+         model:convTbl(7):setBypassRate(0)
+         model:convTbl(8):setBypassRate(0)
+         model:convTbl(13):setBypassRate(0)
+         model:convTbl(14):setBypassRate(0)
          -- 변경 금지 
 
          -- 우선 테스트를 위해 2,4,6 에서만 각 노드가 0.5의 확률로 bypass 되도록 설정
          -- 만일 네트워크 전체에 대한 테스트 시 아래부분 주석처리 후 SpatialConvolution2.lua
          -- 상단에 BYPASS_RATE 설정 이후 수행 가능
          --[[
-         model.convTbl[2]:setBypassRate(0.5)
-         model.convTbl[3]:setBypassRate(0.5)
-         model.convTbl[4]:setBypassRate(0.5)
-         model.convTbl[5]:setBypassRate(0.5)
-         model.convTbl[6]:setBypassRate(0.5)
+         model:convTbl(2):setBypassRate(0.5)
+         model:convTbl(3):setBypassRate(0.5)
+         model:convTbl(4):setBypassRate(0.5)
+         model:convTbl(5):setBypassRate(0.5)
+         model:convTbl(6):setBypassRate(0.5)
          --]]
          -- model.convTbl[9]:setBypassRate(0.5)
          -- model.convTbl[10]:setBypassRate(0.5)
@@ -205,10 +207,11 @@ local function createModel(opt)
          model.convTbl[12]:setBypassRate(0.5)
          --]]
 
-         -- 테스트 용도
+         --[[ 테스트 용도
          model.RLTbl = {}
          model.RLTbl[1] = model:get(4):get(1):get(1):get(1):get(3)
          model.RLTbl[2] = model:get(6):get(3):get(1):get(1):get(3)
+         --]]
 
       else
          print('아직은 depth 20 에만 구현하였음')
