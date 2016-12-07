@@ -46,6 +46,7 @@ end
 
 function BN2:loadKernels(seltbl)
    -- self.seltbl내 bypass된 kernel의 idx를 이용 
+   if not seltbl then return end
    for _, idx in ipairs(seltbl) do
       self.weight[idx] = self.beforeWeight[idx]
       self.bias[idx] = self.beforeBias[idx]
