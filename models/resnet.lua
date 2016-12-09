@@ -58,6 +58,7 @@ local function createModel(opt)
       s:add(Convolution2(nInputPlane,n,3,3,stride,stride,1,1))
       s:add(SBatchNorm2(n))
       s:add(ReLU(true))
+      s:add(nn.Dropout()) -- dropout 추가
       s:add(Convolution2(n,n,3,3,1,1,1,1))
       s:add(SBatchNorm2(n))
 
@@ -164,9 +165,9 @@ local function createModel(opt)
          -- model:initConvTbl()
          model.convTbl = {}
          model.BNTbl = {}
-         tt = {{4,1,1,1,1},{4,1,1,1,4},{4,2,1,1,1},{4,2,1,1,4},{4,3,1,1,1},{4,3,1,1,4},
-               {5,1,1,1,1},{5,1,1,1,4},{5,2,1,1,1},{5,2,1,1,4},{5,3,1,1,1},{5,3,1,1,4},
-               {6,1,1,1,1},{6,1,1,1,4},{6,2,1,1,1},{6,2,1,1,4},{6,3,1,1,1},{6,3,1,1,4}}
+         tt = {{4,1,1,1,1},{4,1,1,1,5},{4,2,1,1,1},{4,2,1,1,5},{4,3,1,1,1},{4,3,1,1,5},
+               {5,1,1,1,1},{5,1,1,1,5},{5,2,1,1,1},{5,2,1,1,5},{5,3,1,1,1},{5,3,1,1,5},
+               {6,1,1,1,1},{6,1,1,1,5},{6,2,1,1,1},{6,2,1,1,5},{6,3,1,1,1},{6,3,1,1,5}}
          for i=1,#tt do
             model.convTbl[i] = model:get(tt[i][1]):get(tt[i][2]):get(tt[i][3]):get(tt[i][4]):get(tt[i][5])
             model.BNTbl[i] = model:get(tt[i][1]):get(tt[i][2]):get(tt[i][3]):get(tt[i][4]):get(tt[i][5]+1)
@@ -185,13 +186,13 @@ local function createModel(opt)
          -- 우선 테스트를 위해 2,4,6 에서만 각 노드가 0.5의 확률로 bypass 되도록 설정
          -- 만일 네트워크 전체에 대한 테스트 시 아래부분 주석처리 후 SpatialConvolution2.lua
          -- 상단에 BYPASS_RATE 설정 이후 수행 가능
-         --
+         --[[
          model.convTbl[2]:setBypassRate(0.5)
          model.convTbl[3]:setBypassRate(0.5)
          model.convTbl[4]:setBypassRate(0.5)
          model.convTbl[5]:setBypassRate(0.5)
          model.convTbl[6]:setBypassRate(0.5)
-         --
+         --]]
          -- model.convTbl[9]:setBypassRate(0.5)
          -- model.convTbl[10]:setBypassRate(0.5)
          -- model.convTbl[11]:setBypassRate(0.5)
