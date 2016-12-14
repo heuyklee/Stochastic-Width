@@ -82,8 +82,6 @@ function Trainer:train(epoch, dataloader)
       -- giyobe
       -- bypass kernel을 결정하고 이들의 weight를 로드, 저장, 0또는 1로 세팅하는 작업 수행
       for i = 1,self.nConvTbl do
-print(self.model:convTbl(i))
-assert(false)
          self.model:convTbl(i):loadKernels()
          self.model:BNTbl(i):loadKernels(self.model:convTbl(i).seltbl)
 
