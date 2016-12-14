@@ -23,6 +23,9 @@ function M.setup(opt, checkpoint)
       assert(paths.filep(modelPath), 'Saved model not found: ' .. modelPath)
       print('=> Resuming model from ' .. modelPath)
       model = torch.load(modelPath):cuda()
+require '../SpatialConvolution2'
+require '../SpatialBatchNormalization2'
+model:initConvTbl()
    elseif opt.retrain ~= 'none' then
       assert(paths.filep(opt.retrain), 'File not found: ' .. opt.retrain)
       print('Loading model from file: ' .. opt.retrain)
