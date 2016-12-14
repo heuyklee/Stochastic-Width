@@ -18,12 +18,13 @@ function M.parse(arg)
     ------------ General options --------------------
    cmd:option('-data',       '',         'Path to dataset')
    cmd:option('-dataset',    'cifar10', 'Options: imagenet | cifar10 | cifar100')
-   cmd:option('-manualSeed', 0,          'Manually set RNG seed')
+   cmd:option('-manualSeed', 5,          'Manually set RNG seed')
    cmd:option('-nGPU',       1,          'Number of GPUs to use by default')
    cmd:option('-backend',    'cudnn',    'Options: cudnn | cunn')
-   cmd:option('-cudnn',      'fastest',  'Options: fastest | default | deterministic') cmd:option('-gen',        'gen',      'Path to save generated files')
+   cmd:option('-cudnn',      'fastest',  'Options: fastest | default | deterministic') 
+   cmd:option('-gen',        'gen',      'Path to save generated files')
    ------------- Data options ------------------------
-   cmd:option('-nThreads',        2, 'number of data loading threads')
+   cmd:option('-nThreads',        1, 'number of data loading threads')
    ------------- Training options --------------------
    cmd:option('-nEpochs',         150,       'Number of total epochs to run')
    cmd:option('-epochNumber',     1,       'Manual epoch number (useful on restarts)')

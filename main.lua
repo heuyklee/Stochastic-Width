@@ -69,7 +69,7 @@ for epoch = startEpoch, opt.nEpochs do
    learningLog.top5Err[epoch] = testTop5
    -- end by giyobe
 
-   checkpoints.save(epoch, model, trainer.optimState, bestModel, opt, learningLog, trainer.confMat) -- add learningLog by giyobe
+   -- checkpoints.save(epoch, model, trainer.optimState, bestModel, opt, learningLog, trainer.confMat) -- add learningLog by giyobe
 end
 
 -- giyobe

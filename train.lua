@@ -8,6 +8,7 @@
 --
 --  The training loop and learning rate schedule
 
+require 'image'
 
 local optim = require 'optim'
 
@@ -137,6 +138,14 @@ function Trainer:train(epoch, dataloader)
          end
          --
       end
+      -- end giyobe
+
+      -- giyobe data뽑는 용도로...
+      -- for i=1,128 do
+         -- image.save('img/img'..i..'.jpg', sample.input[i])
+      -- end
+      -- image.save('tImg1.jpg', self.input[4])
+      -- torch.save(paths.concat('img/target'), self.target)
       -- end giyobe
 
       local output = self.model:forward(self.input):float()
